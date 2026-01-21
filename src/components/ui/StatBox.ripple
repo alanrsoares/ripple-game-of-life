@@ -6,11 +6,12 @@ interface StatBoxProps {
 }
 
 export component StatBox(props: StatBoxProps) {
-  const [label, value] = trackSplit(props, ["label", "value"]);
+  const [value] = trackSplit(props, ["value"]);
+  const label = props.label;
 
   <div class="border-2 border-black bg-white p-3 neo-shadow">
     <span class="block text-[9px] font-bold uppercase tracking-widest text-black/50 mb-1">
-      {@label}
+      {label}
     </span>
     <span class="block text-xl font-bold tabular-nums leading-none">
       {@value}

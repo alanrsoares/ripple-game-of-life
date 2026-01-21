@@ -66,16 +66,23 @@ export component App() {
     let rafId = 0;
     let frames = 0;
     let fpsStamp = performance.now();
+    let lastFrameTime = performance.now();
 
     const loop = (now) => {
       frames += 1;
 
-      if (now - fpsStamp >= 500) {
+      // Calculate FPS more frequently (every 200ms instead of 500ms)
+      if (now - fpsStamp >= 200) {
         @fps = Math.round((frames * 1000) / (now - fpsStamp));
         fpsStamp = now;
         frames = 0;
+      } else if (frames === 1) {
+        // Show initial estimate after first frame
+        const frameTime = now - lastFrameTime;
+        @fps = Math.round(1000 / frameTime);
       }
 
+      lastFrameTime = now;
       @grid = nextState(@grid);
       @generation += 1;
 
