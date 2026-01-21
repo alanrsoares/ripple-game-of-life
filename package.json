@@ -3,16 +3,24 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "homepage": "https://alanrsoares.github.io/ripple-game-of-life",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alanrsoares/ripple-game-of-life.git"
+  },
   "scripts": {
     "dev": "bunx vite",
     "build": "bunx vite build",
-    "preview": "bunx vite preview"
+    "preview": "bunx vite preview",
+    "predeploy": "bun run build",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
     "@ripple-ts/vite-plugin": "^0.2.196",
     "@tailwindcss/cli": "^4.1.18",
     "@tailwindcss/vite": "^4.1.18",
     "@types/bun": "latest",
+    "gh-pages": "^6.3.0",
     "tailwindcss": "^4.1.18",
     "vite": "^7.3.1"
   },
