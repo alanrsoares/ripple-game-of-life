@@ -1,0 +1,317 @@
+@import "https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap";
+
+/* src/App.compiled.css */
+body {
+  color: #eef3f7;
+  background: radial-gradient(circle at 0 0, #1c2235, #0a0d14 60%);
+  min-height: 100vh;
+  margin: 0;
+  font-family: Space Grotesk, Segoe UI, sans-serif;
+}
+
+.ripple-lapo24 {
+  box-sizing: border-box;
+}
+
+.page.ripple-lapo24 {
+  background: linear-gradient(135deg, #283c4a59, #0000 45%), radial-gradient(circle at 70% 20%, #3fa7a02e, #0000 55%);
+  min-height: 100vh;
+  padding: 3.5rem clamp(1.5rem, 3vw, 4rem) 4rem;
+}
+
+.hero.ripple-lapo24 {
+  animation: ripple-lapo24-float-in .7s ease both;
+  max-width: 920px;
+  margin: 0 auto 2.5rem;
+}
+
+.eyebrow.ripple-lapo24 {
+  text-transform: uppercase;
+  letter-spacing: .4em;
+  color: #d5dfe8b3;
+  margin: 0 0 .8rem;
+  font-size: .7rem;
+}
+
+h1.ripple-lapo24 {
+  letter-spacing: .02em;
+  margin: 0 0 .8rem;
+  font-family: Fraunces, Times New Roman, serif;
+  font-size: clamp(2.5rem, 4vw, 3.6rem);
+}
+
+.subtitle.ripple-lapo24 {
+  color: #dbe6eecc;
+  max-width: 620px;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.layout.ripple-lapo24 {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  align-items:  start;
+  gap: 2.5rem;
+}
+
+.panel.ripple-lapo24 {
+  backdrop-filter: blur(12px);
+  animation: ripple-lapo24-float-in .9s ease both;
+  animation-delay: .12s;
+  background: #0f151ebf;
+  border: 1px solid #5f828c66;
+  border-radius: 24px;
+  padding: 2rem 1.8rem;
+  box-shadow: 0 20px 45px #04080c73;
+}
+
+.panel-header.ripple-lapo24 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.6rem;
+}
+
+h2.ripple-lapo24 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.panel-header.ripple-lapo24 p:where(.ripple-lapo24) {
+  color: #c7d5ddb3;
+  margin: 0;
+  font-size: .9rem;
+}
+
+.stats.ripple-lapo24 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.stat.ripple-lapo24 {
+  background: #16202ad9;
+  border: 1px solid #5f828c59;
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.label.ripple-lapo24 {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  color: #b3c6ce99;
+  margin-bottom: .4rem;
+  font-size: .72rem;
+}
+
+.value.ripple-lapo24 {
+  color: #f3f7fa;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.controls.ripple-lapo24 {
+  display: grid;
+  gap: .8rem;
+  margin-bottom: 1.6rem;
+}
+
+.btn.ripple-lapo24 {
+  color: #f5f9fb;
+  letter-spacing: .02em;
+  cursor: pointer;
+  background: #22323ee6;
+  border: none;
+  border-radius: 14px;
+  padding: .7rem 1rem;
+  transition: transform .16s, background .16s, box-shadow .16s;
+  font-size: .95rem;
+  font-weight: 600;
+}
+
+.btn.ripple-lapo24:hover {
+  background: #2e4656f2;
+  transform: translateY(-1px);
+}
+
+.btn.primary.ripple-lapo24 {
+  color: #0d1b1d;
+  background: linear-gradient(135deg, #46c0b1, #1f9eb0);
+  box-shadow: 0 10px 20px #1eb4aa59;
+}
+
+.btn.primary.active.ripple-lapo24 {
+  color: #2a1c0a;
+  background: linear-gradient(135deg, #f7c97b, #e38f52);
+}
+
+.btn.ghost.ripple-lapo24 {
+  background: none;
+  border: 1px solid #7c95a273;
+}
+
+.speed.ripple-lapo24 {
+  background: #131b24e6;
+  border: 1px solid #5a7c8a59;
+  border-radius: 18px;
+  margin-bottom: 1.4rem;
+  padding: 1.2rem 1rem;
+}
+
+.speed-label.ripple-lapo24 {
+  display: flex;
+  justify-content: space-between;
+  align-items:  center;
+  margin-bottom: .8rem;
+  font-size: .9rem;
+}
+
+input[type="range"].ripple-lapo24 {
+  accent-color: #46c0b1;
+  width: 100%;
+}
+
+.speed-notes.ripple-lapo24 {
+  display: flex;
+  text-transform: uppercase;
+  letter-spacing: .2em;
+  color: #b0c6ce8c;
+  justify-content: space-between;
+  margin-top: .6rem;
+  font-size: .75rem;
+}
+
+.hint.ripple-lapo24 {
+  color: #c7d5ddb3;
+  font-size: .85rem;
+}
+
+.hint.ripple-lapo24 p:where(.ripple-lapo24) {
+  margin: 0;
+}
+
+.board.ripple-lapo24 {
+  animation: ripple-lapo24-float-in 1s ease both;
+  animation-delay: .22s;
+  background: #0a0e13a6;
+  border: 1px solid #5f828c66;
+  border-radius: 26px;
+  padding: 1.8rem;
+  box-shadow: inset 0 0 35px #0a0f1499;
+}
+
+.board-header.ripple-lapo24 {
+  display: flex;
+  justify-content: space-between;
+  align-items:  center;
+  margin-bottom: 1.2rem;
+}
+
+.legend.ripple-lapo24 {
+  display: grid;
+  grid-auto-flow: column;
+  color: #cbdbe3b3;
+  align-items:  center;
+  gap: .4rem;
+  font-size: .85rem;
+}
+
+.swatch.ripple-lapo24 {
+  background: #1b2730;
+  border: 1px solid #788c9666;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+}
+
+.swatch.alive.ripple-lapo24 {
+  background: #46c0b1;
+  border-color: #78dccdb3;
+}
+
+.grid.ripple-lapo24 {
+  display: grid;
+  touch-action: none;
+  animation: ripple-lapo24-grid-in 1s ease both;
+  background: #0f161ce6;
+  border: 1px solid #445a6480;
+  border-radius: 18px;
+  gap: 2px;
+  padding: 1rem;
+}
+
+.cell.ripple-lapo24 {
+  aspect-ratio: 1;
+  cursor: pointer;
+  background: #11181f;
+  border: none;
+  border-radius: 6px;
+  width: 100%;
+  transition: background .14s, box-shadow .14s;
+}
+
+.cell.ripple-lapo24:hover {
+  background: #1b2730;
+}
+
+.cell.alive.ripple-lapo24 {
+  background: linear-gradient(135deg, #57d1bf, #1d9db0);
+  box-shadow: 0 0 12px #46c0b173;
+}
+
+@keyframes ripple-lapo24-float-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ripple-lapo24-grid-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px)scale(.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0)scale(1);
+  }
+}
+
+@media (max-width: 980px) {
+  .layout.ripple-lapo24 {
+    grid-template-columns: 1fr;
+  }
+
+  .panel.ripple-lapo24 {
+    order: 2;
+  }
+
+  .board.ripple-lapo24 {
+    order: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .page.ripple-lapo24 {
+    padding: 2.5rem 1.2rem 3rem;
+  }
+
+  .stats.ripple-lapo24 {
+    grid-template-columns: 1fr;
+  }
+
+  .board-header.ripple-lapo24 {
+    flex-direction: column;
+    align-items:  flex-start;
+    gap: .6rem;
+  }
+}
