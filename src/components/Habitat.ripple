@@ -1,0 +1,93 @@
+import { trackSplit, effect } from "ripple";
+
+interface HabitatProps {
+  grid: boolean[][];
+  size: number;
+  onSetCell: (y: number, x: number, value: boolean) => void;
+}
+
+export component Habitat(props: HabitatProps) {
+  const [grid, size] = trackSplit(props, ["grid", "size"]);
+
+  // Paint state locally
+  let paintMode = null as boolean | null;
+  const paintedCells = new Set();
+
+  const startPaint = (y, x) => {
+    const currentGrid = @grid;
+    const currentState = currentGrid[y][x];
+    paintMode = !currentState;
+    paintedCells.clear();
+    paintedCells.add(`${y},${x}`);
+    props.onSetCell(y, x, paintMode);
+  };
+
+  const continuePaint = (y, x) => {
+    if (paintMode === null) return;
+    const key = `${y},${x}`;
+    if (paintedCells.has(key)) return;
+    paintedCells.add(key);
+    props.onSetCell(y, x, paintMode);
+  };
+
+  const endPaint = () => {
+    paintMode = null;
+    paintedCells.clear();
+  };
+
+  effect(() => {
+    const handleUp = () => endPaint();
+    window.addEventListener("pointerup", handleUp);
+    window.addEventListener("pointercancel", handleUp);
+    return () => {
+      window.removeEventListener("pointerup", handleUp);
+      window.removeEventListener("pointercancel", handleUp);
+    };
+  });
+
+  const cellBase =
+    "aspect-square w-full border border-black/40 transition-colors duration-75 hover:border-black";
+  const cellAlive = "!bg-[var(--neo-pink)] !border-[var(--neo-pink)]";
+  const cellDead = "bg-white";
+
+  <section class="border-3 border-black bg-white p-4 neo-shadow-lg flex flex-col">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-black pb-3 mb-4">
+      <h2 class="font-['Syne'] text-lg font-bold uppercase">{"Habitat"}</h2>
+      <div class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wide">
+        <span class="flex items-center gap-1.5">
+          <span class="h-3 w-3 border border-black/40 bg-[var(--neo-pink)]"></span>
+          {"Alive"}
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="h-3 w-3 border border-black/40 bg-white"></span>
+          {"Dead"}
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="grid touch-none gap-0 border-2 border-black bg-black/10 flex-1 w-full aspect-square max-w-[min(100%,640px)] self-center"
+      style={{ gridTemplateColumns: `repeat(${@size}, minmax(0, 1fr))` }}
+      onPointerUp={endPaint}
+    >
+      for (const row of @grid; index y) {
+        for (const cell of row; index x) {
+          <button
+            class={[cellBase, cell ? cellAlive : cellDead]}
+            onPointerDown={() => startPaint(y, x)}
+            onPointerEnter={(event) => {
+              if (event.buttons === 1) {
+                continuePaint(y, x);
+              }
+            }}
+            aria-label={`Cell ${y + 1}, ${x + 1}`}
+          ></button>
+        }
+      }
+    </div>
+
+    <p class="mt-3 text-[10px] text-black/40 text-center font-medium uppercase tracking-wider">
+      {"Built with Ripple + Bun"}
+    </p>
+  </section>
+}

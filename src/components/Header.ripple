@@ -1,0 +1,28 @@
+export component Header() {
+  <header class="mx-auto mb-8 max-w-5xl">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="h-8 w-8 border-2 border-black bg-white p-1 neo-shadow-sm flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="h-full w-full" fill="currentColor">
+          <path
+            d="M19.51 19.51V492.3H492.3V19.51H19.51zm18 18H171.1V171.1H37.51V37.51zm151.59 0h133.6V171.1H189.1V37.51zm151.6 0h133.6V171.1H340.7V37.51zm-84.8 9.94a56.85 56.85 0 0 0-56.8 56.85 56.85 56.85 0 0 0 56.8 56.9 56.85 56.85 0 0 0 56.9-56.9 56.85 56.85 0 0 0-56.9-56.85zM37.51 189.1H171.1v133.6H37.51V189.1zm151.59 0h133.6v133.6H189.1V189.1zm151.6 0h133.6v133.6H340.7V189.1zm66.9 10a56.85 56.85 0 0 0-56.8 56.8 56.85 56.85 0 0 0 56.8 56.9 56.85 56.85 0 0 0 56.8-56.9 56.85 56.85 0 0 0-56.8-56.8zM37.51 340.7H171.1v133.6H37.51V340.7zm151.59 0h133.6v133.6H189.1V340.7zm151.6 0h133.6v133.6H340.7V340.7zm-236.4 10.1a56.85 56.85 0 0 0-56.85 56.8 56.85 56.85 0 0 0 56.85 56.8 56.85 56.85 0 0 0 56.9-56.8 56.85 56.85 0 0 0-56.9-56.8zm151.6 0a56.85 56.85 0 0 0-56.8 56.8 56.85 56.85 0 0 0 56.8 56.8 56.85 56.85 0 0 0 56.9-56.8 56.85 56.85 0 0 0-56.9-56.8zm151.7 0a56.85 56.85 0 0 0-56.8 56.8 56.85 56.85 0 0 0 56.8 56.8 56.85 56.85 0 0 0 56.8-56.8 56.85 56.85 0 0 0-56.8-56.8z"
+          />
+        </svg>
+      </div>
+      <div class="inline-block border-2 border-black bg-[var(--neo-blue)] px-3 py-1.5 neo-shadow">
+        <p class="text-[10px] font-bold uppercase tracking-widest">
+          {"Ripple + Cellular Automata"}
+        </p>
+      </div>
+    </div>
+    <h1 class="font-['Syne'] text-4xl font-extrabold uppercase tracking-tight sm:text-5xl lg:text-6xl leading-none">
+      {"Conway's"}
+      <br />
+      <span class="inline-block border-3 border-black bg-[var(--neo-pink)] px-3 mt-1 -rotate-1">
+        {"Game of Life"}
+      </span>
+    </h1>
+    <p class="mt-4 max-w-lg text-sm leading-relaxed opacity-80">
+      {"Seed a few cells, press play, and watch patterns ripple across the field."}
+    </p>
+  </header>
+}

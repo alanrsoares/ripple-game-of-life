@@ -1,0 +1,128 @@
+import { trackSplit } from "ripple";
+import { Button } from "./ui/Button.ripple";
+import { StatBox } from "./ui/StatBox.ripple";
+import { MIN_SIZE, MAX_SIZE } from "../lib/constants";
+
+interface ControlsProps {
+  size: number;
+  generation: number;
+  living: number;
+  fps: number;
+  running: boolean;
+  onToggleRunning: () => void;
+  onStep: () => void;
+  onRandom: () => void;
+  onClear: () => void;
+  onSizeChange: (size: number) => void;
+}
+
+export component Controls(props: ControlsProps) {
+  const [size, generation, living, fps, running] = trackSplit(props, [
+    "size",
+    "generation",
+    "living",
+    "fps",
+    "running",
+  ]);
+
+  const panelSurface =
+    "border-3 border-black bg-[var(--neo-yellow)] p-5 neo-shadow-lg";
+
+  <section class={panelSurface}>
+    <div class="flex items-center justify-between border-b-2 border-black pb-3 mb-4">
+      <h2 class="font-['Syne'] text-lg font-bold uppercase">{"Controls"}</h2>
+      <span class="border-2 border-black bg-white px-2 py-0.5 text-[10px] font-bold tabular-nums">
+        {@size}{"\u00D7"}{@size}
+      </span>
+    </div>
+
+    <div class="mb-4 space-y-1.5">
+      <div class="flex items-center justify-between gap-2">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-black/70">
+          {"Grid Size"}
+        </label>
+        <span class="text-[10px] font-bold tabular-nums">{@size}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <input
+          type="range"
+          min={MIN_SIZE}
+          max={MAX_SIZE}
+          value={@size}
+          class="w-full accent-[var(--neo-pink)]"
+          onInput={(event) => {
+            const value = Number.parseInt(
+              (event.target as HTMLInputElement).value,
+              10
+            );
+            props.onSizeChange(value);
+          }}
+        />
+        <input
+          type="number"
+          min={MIN_SIZE}
+          max={MAX_SIZE}
+          value={@size}
+          class="w-16 border-2 border-black px-2 py-1 text-xs font-bold text-center neo-shadow-sm"
+          onChange={(event) => {
+            const value = Number.parseInt(
+              (event.target as HTMLInputElement).value,
+              10
+            );
+            props.onSizeChange(Number.isNaN(value) ? MIN_SIZE : value);
+          }}
+        />
+      </div>
+      <p class="text-[10px] leading-relaxed text-black/60">
+        {"Adjust cell count; the habitat stays the same size."}
+      </p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2 mb-5">
+      <StatBox label="Gen" value={generation} />
+      <StatBox label="Alive" value={living} />
+      <StatBox label="FPS" value={fps} />
+    </div>
+
+    <div class="space-y-2">
+      <Button
+        variant="primary"
+        class={@running
+          ? "bg-[var(--neo-orange)] hover:bg-orange-300"
+          : "bg-[var(--neo-green)] hover:bg-lime-300"}
+        onClick={props.onToggleRunning}
+      >
+        {@running ? "Pause" : "Play"}
+      </Button>
+      <div class="grid grid-cols-3 gap-2">
+        <Button
+          variant="secondary"
+          class="bg-[var(--neo-purple)] text-white hover:bg-purple-400"
+          onClick={props.onStep}
+        >
+          {"Step"}
+        </Button>
+        <Button
+          variant="secondary"
+          class="bg-[var(--neo-blue)] hover:bg-teal-300"
+          onClick={props.onRandom}
+        >
+          {"Random"}
+        </Button>
+        <Button
+          variant="secondary"
+          class="bg-white hover:bg-gray-100"
+          onClick={props.onClear}
+        >
+          {"Clear"}
+        </Button>
+      </div>
+    </div>
+
+    <div class="mt-5 border-2 border-black/30 bg-white/50 p-2.5">
+      <p class="text-[10px] leading-relaxed">
+        <span class="font-bold">{"Tip:"}</span>{" Hold and drag to paint cells"}
+      </p>
+    </div>
+  </section>
+}

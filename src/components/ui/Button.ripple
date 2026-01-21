@@ -1,0 +1,26 @@
+import { track, trackSplit, type Component } from "ripple";
+
+interface ButtonProps {
+  variant?: "primary" | "secondary";
+  class?: string;
+  children?: Component;
+  [key: string]: any;
+}
+
+export component Button(props: ButtonProps) {
+  const [variant, className, children, rest] = trackSplit(props, [
+    "variant",
+    "class",
+    "children",
+  ]);
+
+  const baseClass = track(() =>
+    @variant === "primary"
+      ? "inline-flex w-full items-center justify-center border-3 border-black px-5 py-4 text-base font-bold uppercase tracking-wider neo-shadow-hover cursor-pointer"
+      : "inline-flex w-full items-center justify-center border-2 border-black px-4 py-2.5 text-xs font-bold uppercase tracking-wide neo-shadow-hover cursor-pointer"
+  );
+
+  <button class={[@baseClass, @className]} {...@rest}>
+    <@children />
+  </button>
+}

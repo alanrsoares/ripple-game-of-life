@@ -1,11 +1,10 @@
 import { effect, track } from "ripple";
 import { nextState } from "./lib/game";
 import { createGrid, createRandomGrid, setCell } from "./lib/utils";
-
-const DEFAULT_SIZE = 24;
-const MIN_SIZE = 8;
-const MAX_SIZE = 64;
-const DENSITY = 0.24;
+import { DEFAULT_SIZE, MIN_SIZE, MAX_SIZE, DENSITY } from "./lib/constants";
+import { Header } from "./components/Header.ripple";
+import { Controls } from "./components/Controls.ripple";
+import { Habitat } from "./components/Habitat.ripple";
 
 export component App() {
   let size = track(DEFAULT_SIZE);
@@ -16,20 +15,6 @@ export component App() {
   let living = track(() =>
     @grid.reduce((total, row) => total + row.filter(Boolean).length, 0),
   );
-
-  // Primary action button (Play/Pause)
-  const buttonPrimary =
-    "inline-flex w-full items-center justify-center border-3 border-black px-5 py-4 text-base font-bold uppercase tracking-wider neo-shadow-hover cursor-pointer";
-  // Secondary action buttons
-  const buttonSecondary =
-    "inline-flex w-full items-center justify-center border-2 border-black px-4 py-2.5 text-xs font-bold uppercase tracking-wide neo-shadow-hover cursor-pointer";
-  const panelSurface =
-    "border-3 border-black bg-[var(--neo-yellow)] p-5 neo-shadow-lg";
-  const statSurface = "border-2 border-black bg-white p-3 neo-shadow";
-  const cellBase =
-    "aspect-square w-full border border-black/40 transition-colors duration-75 hover:border-black";
-  const cellAlive = "!bg-[var(--neo-pink)] !border-[var(--neo-pink)]";
-  const cellDead = "bg-white";
 
   const stepForward = () => {
     @grid = nextState(@grid);
@@ -68,29 +53,8 @@ export component App() {
     @grid = createGrid(clampedSize);
   };
 
-  // Paint state for drag interactions (module-level to avoid reactivity)
-  let paintMode = null as boolean | null;
-  const paintedCells = new Set();
-
-  const startPaint = (y, x) => {
-    const currentState = @grid[y][x];
-    paintMode = !currentState;
-    paintedCells.clear();
-    paintedCells.add(`${y},${x}`);
-    @grid = setCell(@grid, { y, x }, paintMode);
-  };
-
-  const continuePaint = (y, x) => {
-    if (paintMode === null) return;
-    const key = `${y},${x}`;
-    if (paintedCells.has(key)) return;
-    paintedCells.add(key);
-    @grid = setCell(@grid, { y, x }, paintMode);
-  };
-
-  const endPaint = () => {
-    paintMode = null;
-    paintedCells.clear();
+  const handleSetCell = (y: number, x: number, value: boolean) => {
+    @grid = setCell(@grid, { y, x }, value);
   };
 
   effect(() => {
@@ -124,184 +88,27 @@ export component App() {
   });
 
   <div class="min-h-screen px-4 pb-8 pt-8 sm:px-8 lg:px-12">
-    <header class="mx-auto mb-8 max-w-5xl">
-      <div class="inline-block border-2 border-black bg-[var(--neo-blue)] px-3 py-1.5 neo-shadow mb-4">
-        <p class="text-[10px] font-bold uppercase tracking-widest">
-          {"Ripple + Cellular Automata"}
-        </p>
-      </div>
-      <h1 class="font-['Syne'] text-4xl font-extrabold uppercase tracking-tight sm:text-5xl lg:text-6xl leading-none">
-        {"Conway's"}
-        <br />
-        <span class="inline-block border-3 border-black bg-[var(--neo-pink)] px-3 mt-1 -rotate-1">{"Game of Life"}</span>
-      </h1>
-      <p class="mt-4 max-w-lg text-sm leading-relaxed opacity-80">
-        {"Seed a few cells, press play, and watch patterns ripple across the field."}
-      </p>
-    </header>
+    <Header />
 
     <main class="mx-auto grid max-w-5xl gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <section class={panelSurface}>
-        <div class="flex items-center justify-between border-b-2 border-black pb-3 mb-4">
-          <h2 class="font-['Syne'] text-lg font-bold uppercase">{"Controls"}</h2>
-          <span class="border-2 border-black bg-white px-2 py-0.5 text-[10px] font-bold tabular-nums">
-            {@size}{"\u00D7"}{@size}
-          </span>
-        </div>
+      <Controls
+        size={size}
+        generation={generation}
+        living={living}
+        fps={fps}
+        running={running}
+        onToggleRunning={toggleRunning}
+        onStep={stepForward}
+        onRandom={handleRandom}
+        onClear={handleClear}
+        onSizeChange={handleSizeChange}
+      />
 
-        <div class="mb-4 space-y-1.5">
-          <div class="flex items-center justify-between gap-2">
-            <label class="text-[10px] font-bold uppercase tracking-widest text-black/70">
-              {"Grid Size"}
-            </label>
-            <span class="text-[10px] font-bold tabular-nums">
-              {@size}
-            </span>
-          </div>
-          <div class="flex items-center gap-2">
-            <input
-              type="range"
-              min={MIN_SIZE}
-              max={MAX_SIZE}
-              value={@size}
-              class="w-full accent-[var(--neo-pink)]"
-              onInput={(event) => {
-                const value = Number.parseInt(
-                  (event.target as HTMLInputElement).value,
-                  10,
-                );
-                handleSizeChange(value);
-              }}
-            />
-            <input
-              type="number"
-              min={MIN_SIZE}
-              max={MAX_SIZE}
-              value={@size}
-              class="w-16 border-2 border-black px-2 py-1 text-xs font-bold text-center neo-shadow-sm"
-              onChange={(event) => {
-                const value = Number.parseInt(
-                  (event.target as HTMLInputElement).value,
-                  10,
-                );
-                handleSizeChange(Number.isNaN(value) ? MIN_SIZE : value);
-              }}
-            />
-          </div>
-          <p class="text-[10px] leading-relaxed text-black/60">
-            {"Adjust cell count; the habitat stays the same size."}
-          </p>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2 mb-5">
-          <div class={statSurface}>
-            <span class="block text-[9px] font-bold uppercase tracking-widest text-black/50 mb-1">
-              {"Gen"}
-            </span>
-            <span class="block text-xl font-bold tabular-nums leading-none">
-              {@generation}
-            </span>
-          </div>
-          <div class={statSurface}>
-            <span class="block text-[9px] font-bold uppercase tracking-widest text-black/50 mb-1">
-              {"Alive"}
-            </span>
-            <span class="block text-xl font-bold tabular-nums leading-none">
-              {@living}
-            </span>
-          </div>
-          <div class={statSurface}>
-            <span class="block text-[9px] font-bold uppercase tracking-widest text-black/50 mb-1">
-              {"FPS"}
-            </span>
-            <span class="block text-xl font-bold tabular-nums leading-none">
-              {@fps}
-            </span>
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <button
-            class={[
-              buttonPrimary,
-              @running
-                ? "bg-[var(--neo-orange)] hover:bg-orange-300"
-                : "bg-[var(--neo-green)] hover:bg-lime-300",
-            ]}
-            onClick={toggleRunning}
-          >
-            {@running ? "Pause" : "Play"}
-          </button>
-          <div class="grid grid-cols-3 gap-2">
-            <button
-              class={[buttonSecondary, "bg-[var(--neo-purple)] text-white hover:bg-purple-400"]}
-              onClick={stepForward}
-            >
-              {"Step"}
-            </button>
-            <button
-              class={[buttonSecondary, "bg-[var(--neo-blue)] hover:bg-teal-300"]}
-              onClick={handleRandom}
-            >
-              {"Random"}
-            </button>
-            <button
-              class={[buttonSecondary, "bg-white hover:bg-gray-100"]}
-              onClick={handleClear}
-            >
-              {"Clear"}
-            </button>
-          </div>
-        </div>
-
-        <div class="mt-5 border-2 border-black/30 bg-white/50 p-2.5">
-          <p class="text-[10px] leading-relaxed">
-            <span class="font-bold">{"Tip:"}</span>{" Hold and drag to paint cells"}
-          </p>
-        </div>
-      </section>
-
-      <section class="border-3 border-black bg-white p-4 neo-shadow-lg flex flex-col">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-black pb-3 mb-4">
-          <h2 class="font-['Syne'] text-lg font-bold uppercase">{"Habitat"}</h2>
-          <div class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wide">
-            <span class="flex items-center gap-1.5">
-              <span class="h-3 w-3 border border-black/40 bg-[var(--neo-pink)]"></span>
-              {"Alive"}
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="h-3 w-3 border border-black/40 bg-white"></span>
-              {"Dead"}
-            </span>
-          </div>
-        </div>
-
-        <div
-          class="grid touch-none gap-0 border-2 border-black bg-black/10 flex-1 w-full aspect-square max-w-[min(100%,640px)] self-center"
-          style={{ gridTemplateColumns: `repeat(${@size}, minmax(0, 1fr))` }}
-          onPointerUp={endPaint}
-          onPointerLeave={endPaint}
-        >
-          for (const row of @grid; index y) {
-            for (const cell of row; index x) {
-              <button
-                class={[cellBase, cell ? cellAlive : cellDead]}
-                onPointerDown={() => startPaint(y, x)}
-                onPointerEnter={(event) => {
-                  if (event.buttons === 1) {
-                    continuePaint(y, x);
-                  }
-                }}
-                aria-label={`Cell ${y + 1}, ${x + 1}`}
-              ></button>
-            }
-          }
-        </div>
-
-        <p class="mt-3 text-[10px] text-black/40 text-center font-medium uppercase tracking-wider">
-          {"Built with Ripple + Bun"}
-        </p>
-      </section>
+      <Habitat
+        grid={grid}
+        size={size}
+        onSetCell={handleSetCell}
+      />
     </main>
   </div>
 }
