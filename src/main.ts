@@ -13,9 +13,11 @@ function updateFavicon() {
   if (!favicon) return;
 
   const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  // Extract base path from current href to preserve base path in production
+  const basePath = favicon.href.replace(/\/logo.*\.svg$/, '');
   favicon.href = isDarkMode
-    ? "/src/assets/logo-inverted.svg"
-    : "/src/assets/logo.svg";
+    ? `${basePath}/logo-inverted.svg`
+    : `${basePath}/logo.svg`;
 }
 
 // Set initial favicon
