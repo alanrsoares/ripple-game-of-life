@@ -13,11 +13,11 @@ function updateFavicon() {
   if (!favicon) return;
 
   const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  // Extract base path from current href to preserve base path in production
-  const basePath = favicon.href.replace(/\/logo.*\.svg$/, '');
+  // Use Vite's BASE_URL to get the base path (works in both dev and production)
+  const baseUrl = import.meta.env.BASE_URL;
   favicon.href = isDarkMode
-    ? `${basePath}/logo-inverted.svg`
-    : `${basePath}/logo.svg`;
+    ? `${baseUrl}logo-inverted.svg`
+    : `${baseUrl}logo.svg`;
 }
 
 // Set initial favicon
