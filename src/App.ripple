@@ -3,11 +3,13 @@ import { nextState } from "./lib/game";
 import { createGrid, createRandomGrid, setCell } from "./lib/utils";
 
 const DEFAULT_SIZE = 24;
+const MIN_SIZE = 8;
+const MAX_SIZE = 64;
 const DENSITY = 0.24;
 
 export component App() {
-  const size = DEFAULT_SIZE;
-  let grid = track(createRandomGrid(size, DENSITY));
+  let size = track(DEFAULT_SIZE);
+  let grid = track(createRandomGrid(DEFAULT_SIZE, DENSITY));
   let running = track(false);
   let generation = track(0);
   let fps = track(0);
@@ -41,13 +43,29 @@ export component App() {
   const handleClear = () => {
     @running = false;
     @generation = 0;
-    @grid = createGrid(size);
+    @grid = createGrid(@size);
   };
 
   const handleRandom = () => {
     @running = false;
     @generation = 0;
-    @grid = createRandomGrid(size, DENSITY);
+    @grid = createRandomGrid(@size, DENSITY);
+  };
+
+  const handleSizeChange = (nextSize: number) => {
+    if (Number.isNaN(nextSize)) {
+      return;
+    }
+
+    const clampedSize = Math.min(MAX_SIZE, Math.max(MIN_SIZE, nextSize));
+    if (clampedSize === @size) {
+      return;
+    }
+
+    @running = false;
+    @generation = 0;
+    @size = clampedSize;
+    @grid = createGrid(clampedSize);
   };
 
   // Paint state for drag interactions (module-level to avoid reactivity)
@@ -127,8 +145,52 @@ export component App() {
         <div class="flex items-center justify-between border-b-2 border-black pb-3 mb-4">
           <h2 class="font-['Syne'] text-lg font-bold uppercase">{"Controls"}</h2>
           <span class="border-2 border-black bg-white px-2 py-0.5 text-[10px] font-bold tabular-nums">
-            {size}{"\u00D7"}{size}
+            {@size}{"\u00D7"}{@size}
           </span>
+        </div>
+
+        <div class="mb-4 space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-[10px] font-bold uppercase tracking-widest text-black/70">
+              {"Grid Size"}
+            </label>
+            <span class="text-[10px] font-bold tabular-nums">
+              {@size}
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input
+              type="range"
+              min={MIN_SIZE}
+              max={MAX_SIZE}
+              value={@size}
+              class="w-full accent-[var(--neo-pink)]"
+              onInput={(event) => {
+                const value = Number.parseInt(
+                  (event.target as HTMLInputElement).value,
+                  10,
+                );
+                handleSizeChange(value);
+              }}
+            />
+            <input
+              type="number"
+              min={MIN_SIZE}
+              max={MAX_SIZE}
+              value={@size}
+              class="w-16 border-2 border-black px-2 py-1 text-xs font-bold text-center neo-shadow-sm"
+              onChange={(event) => {
+                const value = Number.parseInt(
+                  (event.target as HTMLInputElement).value,
+                  10,
+                );
+                handleSizeChange(Number.isNaN(value) ? MIN_SIZE : value);
+              }}
+            />
+          </div>
+          <p class="text-[10px] leading-relaxed text-black/60">
+            {"Adjust cell count; the habitat stays the same size."}
+          </p>
         </div>
 
         <div class="grid grid-cols-3 gap-2 mb-5">
@@ -215,8 +277,8 @@ export component App() {
         </div>
 
         <div
-          class="grid touch-none gap-0 border-2 border-black bg-black/10 flex-1"
-          style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
+          class="grid touch-none gap-0 border-2 border-black bg-black/10 flex-1 w-full aspect-square max-w-[min(100%,640px)] self-center"
+          style={{ gridTemplateColumns: `repeat(${@size}, minmax(0, 1fr))` }}
           onPointerUp={endPaint}
           onPointerLeave={endPaint}
         >
