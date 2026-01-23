@@ -1,19 +1,156 @@
-import { trackSplit, effect } from "ripple";
+import { track, trackSplit, effect } from "ripple";
 
 interface HabitatProps {
   grid: boolean[][];
   size: number;
+  renderMode: "canvas" | "dom";
   onSetCell: (y: number, x: number, value: boolean) => void;
 }
 
 export component Habitat(props: HabitatProps) {
-  const [grid, size] = trackSplit(props, ["grid", "size"]);
+  const [grid, size, renderMode] = trackSplit(props, ["grid", "size", "renderMode"]);
+  let canvasRef = track(null as HTMLCanvasElement | null);
 
-  // Paint state locally
+  // Paint state shared
   let paintMode = null as boolean | null;
   const paintedCells = new Set();
 
-  const startPaint = (y, x) => {
+  // --- Canvas Logic ---
+  const getCellFromEvent = (e: PointerEvent) => {
+    const canvas = @canvasRef;
+    if (!canvas) return { row: 0, col: 0 };
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const cellSize = rect.width / @size;
+    
+    const col = Math.floor(x / cellSize);
+    const row = Math.floor(y / cellSize);
+    
+    const clampedCol = Math.min(Math.max(0, col), @size - 1);
+    const clampedRow = Math.min(Math.max(0, row), @size - 1);
+    
+    return { row: clampedRow, col: clampedCol };
+  };
+
+  const startPaintCanvas = (e: PointerEvent) => {
+    const { row, col } = getCellFromEvent(e);
+    const currentGrid = @grid;
+    if (!currentGrid[row]) return;
+    
+    const currentState = currentGrid[row][col];
+    paintMode = !currentState;
+    paintedCells.clear();
+    paintedCells.add(`${row},${col}`);
+    props.onSetCell(row, col, paintMode);
+    
+    @canvasRef?.setPointerCapture(e.pointerId);
+  };
+
+  const continuePaintCanvas = (e: PointerEvent) => {
+    if (paintMode === null) return;
+    const { row, col } = getCellFromEvent(e);
+    const key = `${row},${col}`;
+    if (paintedCells.has(key)) return;
+    
+    paintedCells.add(key);
+    props.onSetCell(row, col, paintMode);
+  };
+
+  const endPaintCanvas = (e: PointerEvent) => {
+    paintMode = null;
+    paintedCells.clear();
+    @canvasRef?.releasePointerCapture(e.pointerId);
+  };
+
+  const setCanvasRef = (el: HTMLCanvasElement) => {
+     @canvasRef = el;
+  };
+
+  const draw = () => {
+    const canvas = @canvasRef;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext("2d", { alpha: false });
+    if (!ctx) return;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const gridSize = @size;
+    const currentGrid = @grid;
+    const cellSize = width / gridSize;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(0,0,0,0.4)";
+    ctx.lineWidth = 1;
+    
+    for (let x = 0; x <= gridSize; x++) {
+      const xPos = Math.floor(x * cellSize);
+      ctx.moveTo(xPos, 0);
+      ctx.lineTo(xPos, height);
+    }
+    for (let y = 0; y <= gridSize; y++) {
+      const yPos = Math.floor(y * cellSize);
+      ctx.moveTo(0, yPos);
+      ctx.lineTo(width, yPos);
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = "#ff6b9d";
+    
+    for (let y = 0; y < gridSize; y++) {
+      const row = currentGrid[y];
+      if (!row) continue;
+      for (let x = 0; x < gridSize; x++) {
+        if (row[x]) {
+          const xPos = Math.floor(x * cellSize);
+          const yPos = Math.floor(y * cellSize);
+          const w = Math.ceil(cellSize);
+          const h = Math.ceil(cellSize);
+          ctx.fillRect(xPos, yPos, w, h);
+        }
+      }
+    }
+  };
+
+  effect(() => {
+    let canvas = @canvasRef;
+    if (@renderMode !== "canvas") return;
+    
+    if (!canvas) {
+        canvas = document.getElementById("habitat-canvas") as HTMLCanvasElement;
+        if (canvas) {
+             @canvasRef = canvas;
+        }
+    }
+    
+    if (!canvas) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        draw();
+    });
+
+    resizeObserver.observe(canvas);
+    
+    return () => resizeObserver.disconnect();
+  });
+
+  effect(() => {
+     if (@renderMode === "canvas" && @canvasRef) {
+       draw();
+     }
+  });
+
+  // --- DOM Logic ---
+  const startPaintDOM = (y, x) => {
     const currentGrid = @grid;
     const currentState = currentGrid[y][x];
     paintMode = !currentState;
@@ -22,7 +159,7 @@ export component Habitat(props: HabitatProps) {
     props.onSetCell(y, x, paintMode);
   };
 
-  const continuePaint = (y, x) => {
+  const continuePaintDOM = (y, x) => {
     if (paintMode === null) return;
     const key = `${y},${x}`;
     if (paintedCells.has(key)) return;
@@ -30,13 +167,13 @@ export component Habitat(props: HabitatProps) {
     props.onSetCell(y, x, paintMode);
   };
 
-  const endPaint = () => {
+  const endPaintDOM = () => {
     paintMode = null;
     paintedCells.clear();
   };
 
   effect(() => {
-    const handleUp = () => endPaint();
+    const handleUp = () => endPaintDOM();
     window.addEventListener("pointerup", handleUp);
     window.addEventListener("pointercancel", handleUp);
     return () => {
@@ -65,26 +202,40 @@ export component Habitat(props: HabitatProps) {
       </div>
     </div>
 
-    <div
-      class="grid touch-none gap-0 border-2 border-black bg-black/10 flex-1 w-full aspect-square max-w-[min(100%,640px)] self-center hover:cursor-pointer"
-      style={{ gridTemplateColumns: `repeat(${@size}, minmax(0, 1fr))` }}
-      onPointerUp={endPaint}
-    >
-      for (const row of @grid; index y) {
-        for (const cell of row; index x) {
-          <button
-            class={[cellBase, cell ? cellAlive : cellDead]}
-            onPointerDown={() => startPaint(y, x)}
-            onPointerEnter={(event) => {
-              if (event.buttons === 1) {
-                continuePaint(y, x);
-              }
-            }}
-            aria-label={`Cell ${y + 1}, ${x + 1}`}
-          ></button>
+    if (@renderMode === "canvas") {
+      <canvas
+        id="habitat-canvas"
+        class="border-2 border-black bg-black/10 flex-1 w-full aspect-square max-w-[min(100%,640px)] self-center hover:cursor-pointer touch-none"
+        ref={setCanvasRef}
+        onPointerDown={startPaintCanvas}
+        onPointerMove={continuePaintCanvas}
+        onPointerUp={endPaintCanvas}
+        onPointerCancel={endPaintCanvas}
+        aria-label="Game of Life Grid (Canvas)"
+        role="grid"
+      ></canvas>
+    } else {
+      <div
+        class="grid touch-none gap-0 border-2 border-black bg-black/10 flex-1 w-full aspect-square max-w-[min(100%,640px)] self-center hover:cursor-pointer"
+        style={{ gridTemplateColumns: `repeat(${@size}, minmax(0, 1fr))` }}
+        onPointerUp={endPaintDOM}
+      >
+        for (const row of @grid; index y) {
+          for (const cell of row; index x) {
+            <button
+              class={[cellBase, cell ? cellAlive : cellDead]}
+              onPointerDown={() => startPaintDOM(y, x)}
+              onPointerEnter={(event) => {
+                if (event.buttons === 1) {
+                  continuePaintDOM(y, x);
+                }
+              }}
+              aria-label={`Cell ${y + 1}, ${x + 1}`}
+            ></button>
+          }
         }
-      }
-    </div>
+      </div>
+    }
 
     <p class="mt-3 text-[10px] text-black/40 text-center font-medium uppercase tracking-wider">
       {"Built with Ripple + Bun"}

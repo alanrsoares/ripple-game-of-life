@@ -9,20 +9,23 @@ interface ControlsProps {
   living: number;
   fps: number;
   running: boolean;
+  renderMode: "canvas" | "dom";
   onToggleRunning: () => void;
   onStep: () => void;
   onRandom: () => void;
   onClear: () => void;
   onSizeChange: (size: number) => void;
+  onToggleRenderMode: (mode: "canvas" | "dom") => void;
 }
 
 export component Controls(props: ControlsProps) {
-  const [size, generation, living, fps, running] = trackSplit(props, [
+  const [size, generation, living, fps, running, renderMode] = trackSplit(props, [
     "size",
     "generation",
     "living",
     "fps",
     "running",
+    "renderMode",
   ]);
 
   const panelSurface =
@@ -76,6 +79,36 @@ export component Controls(props: ControlsProps) {
       <p class="text-[10px] leading-relaxed text-black/60">
         {"Adjust cell count; the habitat stays the same size."}
       </p>
+    </div>
+
+    <div class="mb-5 space-y-1.5 border-t-2 border-black/10 pt-3">
+      <label class="text-[10px] font-bold uppercase tracking-widest text-black/70">
+        {"Renderer"}
+      </label>
+      <div class="flex gap-2">
+        <button
+          class={[
+            "flex-1 border-2 border-black px-2 py-1.5 text-[10px] font-bold uppercase transition-all",
+            @renderMode === "canvas"
+              ? "bg-black text-white neo-shadow-sm"
+              : "bg-white hover:bg-gray-50",
+          ]}
+          onClick={() => props.onToggleRenderMode("canvas")}
+        >
+          {"Canvas"}
+        </button>
+        <button
+          class={[
+            "flex-1 border-2 border-black px-2 py-1.5 text-[10px] font-bold uppercase transition-all",
+            @renderMode === "dom"
+              ? "bg-black text-white neo-shadow-sm"
+              : "bg-white hover:bg-gray-50",
+          ]}
+          onClick={() => props.onToggleRenderMode("dom")}
+        >
+          {"DOM"}
+        </button>
+      </div>
     </div>
 
     <div class="grid grid-cols-3 gap-2 mb-5">
