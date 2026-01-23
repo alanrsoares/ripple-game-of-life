@@ -81,25 +81,28 @@ export component Habitat(props: HabitatProps) {
     const currentGrid = @grid;
     const cellSize = width / gridSize;
 
+    // 1. Fill background (Dead state: White)
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width, height);
 
-    ctx.beginPath();
-    ctx.strokeStyle = "rgba(0,0,0,0.4)";
-    ctx.lineWidth = 1;
+    // 2. Draw Grid Lines manually using fillRect for crisp lines
+    // DOM border is border-black/20 (1px)
+    // Canvas is scaled by DPR, so 2 physical pixels ~ 1 CSS pixel on Retina, or 2px on standard.
+    // User requested "double the inner border stroke".
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
     
-    for (let x = 0; x <= gridSize; x++) {
-      const xPos = Math.floor(x * cellSize);
-      ctx.moveTo(xPos, 0);
-      ctx.lineTo(xPos, height);
+    // Vertical lines
+    for (let x = 1; x < gridSize; x++) {
+      const xPos = Math.floor(x * cellSize) - 1;
+      ctx.fillRect(xPos, 0, 2, height);
     }
-    for (let y = 0; y <= gridSize; y++) {
-      const yPos = Math.floor(y * cellSize);
-      ctx.moveTo(0, yPos);
-      ctx.lineTo(width, yPos);
+    // Horizontal lines
+    for (let y = 1; y < gridSize; y++) {
+      const yPos = Math.floor(y * cellSize) - 1;
+      ctx.fillRect(0, yPos, width, 2);
     }
-    ctx.stroke();
 
+    // 3. Fill Alive Cells
     ctx.fillStyle = "#ff6b9d";
     
     for (let y = 0; y < gridSize; y++) {
@@ -109,25 +112,42 @@ export component Habitat(props: HabitatProps) {
         if (row[x]) {
           const xPos = Math.floor(x * cellSize);
           const yPos = Math.floor(y * cellSize);
-          const w = Math.ceil(cellSize);
-          const h = Math.ceil(cellSize);
-          ctx.fillRect(xPos, yPos, w, h);
+          const nextX = Math.floor((x + 1) * cellSize);
+          const nextY = Math.floor((y + 1) * cellSize);
+          
+          ctx.fillRect(xPos, yPos, nextX - xPos, nextY - yPos);
         }
       }
     }
   };
 
   effect(() => {
+    // 1. Cleanup/Reset if not in canvas mode
+    if (@renderMode !== "canvas") {
+      if (@canvasRef) @canvasRef = null;
+      return;
+    }
+
     let canvas = @canvasRef;
-    if (@renderMode !== "canvas") return;
     
-    if (!canvas) {
+    // 2. Check validity and Fallback
+    const isDetached = canvas && !document.body.contains(canvas);
+    
+    if (!canvas || isDetached) {
         canvas = document.getElementById("habitat-canvas") as HTMLCanvasElement;
         if (canvas) {
              @canvasRef = canvas;
+        } else {
+             // 3. Retry if DOM not ready yet
+             const timer = setTimeout(() => {
+                 const el = document.getElementById("habitat-canvas") as HTMLCanvasElement;
+                 if (el) @canvasRef = el;
+             }, 20);
+             return () => clearTimeout(timer);
         }
     }
     
+    // If we still don't have a valid canvas, stop here (retry will handle it)
     if (!canvas) return;
 
     const resizeObserver = new ResizeObserver(() => {
@@ -139,6 +159,9 @@ export component Habitat(props: HabitatProps) {
     });
 
     resizeObserver.observe(canvas);
+    
+    // Force initial draw
+    draw();
     
     return () => resizeObserver.disconnect();
   });
@@ -183,7 +206,7 @@ export component Habitat(props: HabitatProps) {
   });
 
   const cellBase =
-    "aspect-square w-full border border-black/40 transition-colors duration-75 hover:border-black";
+    "aspect-square w-full border border-black/20 transition-colors duration-75 hover:border-black";
   const cellAlive = "!bg-[var(--neo-pink)] !border-[var(--neo-pink)]";
   const cellDead = "bg-white";
 
@@ -192,11 +215,11 @@ export component Habitat(props: HabitatProps) {
       <h2 class="font-['Syne'] text-lg font-bold uppercase">{"Habitat"}</h2>
       <div class="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wide">
         <span class="flex items-center gap-1.5">
-          <span class="h-3 w-3 border border-black/40 bg-[var(--neo-pink)]"></span>
+          <span class="h-3 w-3 border border-black/20 bg-[var(--neo-pink)]"></span>
           {"Alive"}
         </span>
         <span class="flex items-center gap-1.5">
-          <span class="h-3 w-3 border border-black/40 bg-white"></span>
+          <span class="h-3 w-3 border border-black/20 bg-white"></span>
           {"Dead"}
         </span>
       </div>
@@ -217,11 +240,11 @@ export component Habitat(props: HabitatProps) {
     } else {
       <div
         class="grid touch-none gap-0 border-2 border-black bg-black/10 flex-1 w-full aspect-square max-w-[min(100%,640px)] self-center hover:cursor-pointer"
-        style={{ gridTemplateColumns: `repeat(${@size}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: `repeat(${@size}, minmax(0, 1fr))`, contain: "strict" }}
         onPointerUp={endPaintDOM}
       >
-        for (const row of @grid; index y) {
-          for (const cell of row; index x) {
+        for (const row of @grid; index y; key y) {
+          for (const cell of row; index x; key x) {
             <button
               class={[cellBase, cell ? cellAlive : cellDead]}
               onPointerDown={() => startPaintDOM(y, x)}
