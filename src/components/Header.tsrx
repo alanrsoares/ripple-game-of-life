@@ -1,0 +1,34 @@
+export function Header() {
+  const logoUrl = `${import.meta.env.BASE_URL}logo.svg`;
+
+  return <header class="mx-auto mb-8 max-w-5xl">
+    <div class="flex items-center gap-3 mb-4">
+      <div
+        class="h-8 w-8 border-2 border-black bg-white p-1 neo-shadow-sm flex items-center justify-center"
+      >
+        <img src={logoUrl} alt="Ripple Logo" class="h-full w-full" />
+      </div>
+      <div
+        class="inline-block border-2 border-black bg-[var(--neo-blue)] px-3 py-1.5 neo-shadow"
+      >
+        <p class="text-[10px] font-bold uppercase tracking-widest">
+          {"Ripple + Cellular Automata"}
+        </p>
+      </div>
+    </div>
+    <h1
+      class="font-['Syne'] text-4xl font-extrabold uppercase tracking-tight sm:text-5xl lg:text-6xl leading-none"
+    >
+      {"Conway's"}
+      <br />
+      <span
+        class="inline-block border-3 border-black bg-[var(--neo-pink)] px-3 mt-1 -rotate-1"
+      >
+        {"Game of Life"}
+      </span>
+    </h1>
+    <p class="mt-4 max-w-lg text-sm leading-relaxed opacity-80">
+      {"Seed a few cells, press play, and watch patterns ripple across the field."}
+    </p>
+  </header>;
+}

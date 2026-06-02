@@ -5,8 +5,14 @@
     "target": "ESNext",
     "module": "Preserve",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
+    "jsx": "preserve",
+    "jsxImportSource": "ripple",
     "allowJs": true,
+    "plugins": [
+      {
+        "name": "@tsrx/typescript-plugin"
+      }
+    ],
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -25,5 +31,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "include": ["src", "index.ts", "vite.config.ts"]
 }

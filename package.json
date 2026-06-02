@@ -9,25 +9,39 @@
     "url": "https://github.com/alanrsoares/ripple-game-of-life.git"
   },
   "scripts": {
-    "dev": "bunx vite",
-    "build": "bunx vite build",
-    "preview": "bunx vite preview",
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsrx-tsc --noEmit",
+    "lint": "bun run lint:tsrx && bun run lint:biome",
+    "lint:tsrx": "eslint .",
+    "lint:biome": "biome lint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "bun run typecheck && bun run lint && bun run format:check",
+    "preview": "vite preview",
     "predeploy": "bun run build",
     "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
-    "@ripple-ts/vite-plugin": "^0.2.196",
+    "@biomejs/biome": "^2.4.16",
+    "@ripple-ts/language-server": "^0.3.72",
+    "@ripple-ts/vite-plugin": "^0.3.72",
     "@tailwindcss/cli": "^4.1.18",
     "@tailwindcss/vite": "^4.1.18",
+    "@tsrx/eslint-parser": "^0.3.72",
+    "@tsrx/eslint-plugin": "^0.3.72",
+    "@tsrx/prettier-plugin": "^0.3.72",
+    "@tsrx/typescript-plugin": "^0.3.72",
     "@types/bun": "latest",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.4.1",
     "gh-pages": "^6.3.0",
+    "prettier": "^3.8.3",
     "tailwindcss": "^4.1.18",
+    "typescript": "5.9.3",
     "vite": "^7.3.1"
   },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
   "dependencies": {
-    "ripple": "^0.2.196"
+    "ripple": "^0.3.72"
   }
 }

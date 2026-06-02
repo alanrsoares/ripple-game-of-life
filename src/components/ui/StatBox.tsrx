@@ -1,0 +1,17 @@
+interface StatBoxProps {
+  label: string;
+  value: number | string;
+}
+
+export function StatBox(&{ label, value }: StatBoxProps) {
+  return <div class="border-2 border-black bg-white p-3 neo-shadow">
+    <span
+      class="block text-[9px] font-bold uppercase tracking-widest text-black/50 mb-1"
+    >
+      {label}
+    </span>
+    <span class="block text-xl font-bold tabular-nums leading-none">
+      {value}
+    </span>
+  </div>;
+}

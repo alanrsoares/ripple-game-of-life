@@ -1,6 +1,5 @@
-import { trackSplit } from "ripple";
-import { Button } from "./ui/Button.ripple";
-import { StatBox } from "./ui/StatBox.ripple";
+import { Button } from "./ui/Button.tsrx";
+import { StatBox } from "./ui/StatBox.tsrx";
 import { MIN_SIZE, MAX_SIZE } from "../lib/constants";
 
 interface ControlsProps {
@@ -18,61 +17,72 @@ interface ControlsProps {
   onToggleRenderMode: (mode: "canvas" | "dom") => void;
 }
 
-export component Controls(props: ControlsProps) {
-  const [size, generation, living, fps, running, renderMode] = trackSplit(props, [
-    "size",
-    "generation",
-    "living",
-    "fps",
-    "running",
-    "renderMode",
-  ]);
+export function Controls(&{
+  size,
+  generation,
+  living,
+  fps,
+  running,
+  renderMode,
+  onToggleRunning,
+  onStep,
+  onRandom,
+  onClear,
+  onSizeChange,
+  onToggleRenderMode,
+}: ControlsProps) {
+  const panelSurface = "border-3 border-black bg-[var(--neo-yellow)] p-5 neo-shadow-lg";
 
-  const panelSurface =
-    "border-3 border-black bg-[var(--neo-yellow)] p-5 neo-shadow-lg";
-
-  <section class={panelSurface}>
-    <div class="flex items-center justify-between border-b-2 border-black pb-3 mb-4">
+  return <section class={panelSurface}>
+    <div
+      class="flex items-center justify-between border-b-2 border-black pb-3 mb-4"
+    >
       <h2 class="font-['Syne'] text-lg font-bold uppercase">{"Controls"}</h2>
-      <span class="border-2 border-black bg-white px-2 py-0.5 text-[10px] font-bold tabular-nums">
-        {@size}{"\u00D7"}{@size}
+      <span
+        class="border-2 border-black bg-white px-2 py-0.5 text-[10px] font-bold tabular-nums"
+      >
+        {size}
+        {"×"}
+        {size}
       </span>
     </div>
 
     <div class="mb-4 space-y-1.5">
       <div class="flex items-center justify-between gap-2">
-        <label class="text-[10px] font-bold uppercase tracking-widest text-black/70">
+        <label
+          class="text-[10px] font-bold uppercase tracking-widest text-black/70"
+        >
           {"Grid Size"}
         </label>
-        <span class="text-[10px] font-bold tabular-nums">{@size}</span>
+        <span class="text-[10px] font-bold tabular-nums">{size}</span>
       </div>
       <div class="flex items-center gap-2">
         <input
           type="range"
           min={MIN_SIZE}
           max={MAX_SIZE}
-          value={@size}
+          value={size}
           class="w-full accent-[var(--neo-pink)]"
           onInput={(event) => {
             const value = Number.parseInt(
               (event.target as HTMLInputElement).value,
-              10
+              10,
             );
-            props.onSizeChange(value);
+            onSizeChange(value);
           }}
         />
         <input
           type="number"
           min={MIN_SIZE}
           max={MAX_SIZE}
-          value={@size}
+          value={size}
           class="w-16 border-2 border-black px-2 py-1 text-xs font-bold text-center neo-shadow-sm"
-          onChange={(event) => {
+          onInput={(event) => {
             const value = Number.parseInt(
               (event.target as HTMLInputElement).value,
-              10
+              10,
             );
-            props.onSizeChange(Number.isNaN(value) ? MIN_SIZE : value);
+            onSizeChange(Number.isNaN(value) ? MIN_SIZE : value);
           }}
         />
       </div>
@@ -82,29 +92,31 @@ export component Controls(props: ControlsProps) {
     </div>
 
     <div class="mb-5 space-y-1.5 border-t-2 border-black/10 pt-3">
-      <label class="text-[10px] font-bold uppercase tracking-widest text-black/70">
+      <label
+        class="text-[10px] font-bold uppercase tracking-widest text-black/70"
+      >
         {"Renderer"}
       </label>
       <div class="flex gap-2">
         <button
           class={[
             "flex-1 border-2 border-black px-2 py-1.5 text-[10px] font-bold uppercase transition-all",
-            @renderMode === "canvas"
+            renderMode === "canvas"
               ? "bg-black text-white neo-shadow-sm"
               : "bg-white hover:bg-gray-50",
           ]}
-          onClick={() => props.onToggleRenderMode("canvas")}
+          onClick={() => onToggleRenderMode("canvas")}
         >
           {"Canvas"}
         </button>
         <button
           class={[
             "flex-1 border-2 border-black px-2 py-1.5 text-[10px] font-bold uppercase transition-all",
-            @renderMode === "dom"
+            renderMode === "dom"
               ? "bg-black text-white neo-shadow-sm"
               : "bg-white hover:bg-gray-50",
           ]}
-          onClick={() => props.onToggleRenderMode("dom")}
+          onClick={() => onToggleRenderMode("dom")}
         >
           {"DOM"}
         </button>
@@ -120,32 +132,32 @@ export component Controls(props: ControlsProps) {
     <div class="space-y-2">
       <Button
         variant="primary"
-        class={@running
+        class={running
           ? "bg-[var(--neo-orange)] hover:bg-orange-300"
           : "bg-[var(--neo-green)] hover:bg-lime-300"}
-        onClick={props.onToggleRunning}
+        onClick={onToggleRunning}
       >
-        {@running ? "Pause" : "Play"}
+        {running ? "Pause" : "Play"}
       </Button>
       <div class="grid grid-cols-3 gap-2">
         <Button
           variant="secondary"
           class="bg-[var(--neo-purple)] text-white hover:bg-purple-400"
-          onClick={props.onStep}
+          onClick={onStep}
         >
           {"Step"}
         </Button>
         <Button
           variant="secondary"
           class="bg-[var(--neo-blue)] hover:bg-teal-300"
-          onClick={props.onRandom}
+          onClick={onRandom}
         >
           {"Random"}
         </Button>
         <Button
           variant="secondary"
           class="bg-white hover:bg-gray-100"
-          onClick={props.onClear}
+          onClick={onClear}
         >
           {"Clear"}
         </Button>
@@ -154,8 +166,9 @@ export component Controls(props: ControlsProps) {
 
     <div class="mt-5 border-2 border-black/30 bg-white/50 p-2.5">
       <p class="text-[10px] leading-relaxed">
-        <span class="font-bold">{"Tip:"}</span>{" Hold and drag to paint cells"}
+        <span class="font-bold">{"Tip:"}</span>
+        {" Hold and drag to paint cells"}
       </p>
     </div>
-  </section>
+  </section>;
 }

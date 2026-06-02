@@ -19,4 +19,4 @@ const server = Bun.serve({
   },
 });
 
-console.log(`Listening on ${server.url}`);
+await Bun.write(Bun.stdout, `Listening on ${server.url}\n`);

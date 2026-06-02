@@ -1,9 +1,7 @@
 import type { Grid, Point } from "./types";
 
 export const createGrid = (size: number): Grid =>
-  Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => false),
-  );
+  Array.from({ length: size }, () => Array.from({ length: size }, () => false));
 
 export const createRandomGrid = (size: number, density = 0.22): Grid =>
   createGrid(size).map((row) => row.map(() => Math.random() < density));

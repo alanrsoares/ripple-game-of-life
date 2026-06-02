@@ -1,5 +1,5 @@
 import { mount } from "ripple";
-import { App } from "./App.ripple";
+import { App } from "./App.tsrx";
 
 const target = document.getElementById("app");
 
@@ -24,6 +24,10 @@ function updateFavicon() {
 updateFavicon();
 
 // Listen for changes in color scheme preference
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", updateFavicon);
+window
+  .matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change", updateFavicon);
 
-mount(App, { target });
+mount(App, {
+  target,
+});
